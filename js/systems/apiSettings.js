@@ -183,7 +183,7 @@ function bindEvents() {
     document.querySelector('input[name="api-model-mode"][value="manual"]').checked = true;
     document.getElementById('api-edit-model').style.display = 'none';
     document.getElementById('api-edit-model-manual').style.display = '';
-    document.getElementById('api-edit-model-manual').value = 'google/gemma-4-31b-it:free';
+    document.getElementById('api-edit-model-manual').value = 'google/gemma-4-26b-a4b-it:free';
     showToast(dom['toast-notification'], '已填入 OpenRouter 免费配置，直接保存即可');
   });
 
