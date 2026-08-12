@@ -5,7 +5,7 @@
 import { state, selectedMessageIds, MESSAGES_PER_PAGE } from '../core/state.js';
 import * as dataService from '../core/dataService.js';
 import * as utils from '../core/utils.js';
-import { generatePrivateSystemPrompt, generateGroupSystemPrompt } from './promptBuilder.js';
+import { generatePrivateSystemPrompt, generateGroupSystemPrompt, buildTimeSuffix } from './promptBuilder.js';
 
 // aiService 已通过全局 script 加载
 // 注意：不缓存 aiChat 引用，每次都从 window.AiService.chat 实时读取
@@ -883,6 +883,19 @@ async function triggerAiReply() {
       return msg;
     });
 
+    // 动态时间块注入最后一条 user 消息（保持 system prompt 静态 → 前缀缓存可命中）
+    const timeSuffix = buildTimeSuffix(chat.history || []);
+    let messages = historySlice;
+    if (timeSuffix) {
+      for (let i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].role === 'user') {
+          messages = messages.slice(0, i)
+            .concat([{ ...messages[i], content: messages[i].content + timeSuffix }], messages.slice(i + 1));
+          break;
+        }
+      }
+    }
+
     // 如果当前有图片识别数据，追加到 system prompt
     let finalSystemPrompt = systemPrompt;
     if (currentImageBase64) {
@@ -891,7 +904,7 @@ async function triggerAiReply() {
 
     const reply = await getAiChat()({
       system: finalSystemPrompt,
-      messages: historySlice,
+      messages: messages,
       options: { temperature: 0.9, maxTokens: 2048 },
     });
 

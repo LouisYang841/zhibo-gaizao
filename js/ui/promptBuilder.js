@@ -104,8 +104,6 @@ export function generatePrivateSystemPrompt(character) {
   const myProfile = db.myProfile || {};
   const effectiveMyName = character.myName || myProfile.name || "我";
   const effectiveMyPersona = character.myPersona || myProfile.persona || "";
-  const now = new Date();
-  const currentTime = now.getFullYear() + "年" + pad(now.getMonth()+1) + "月" + pad(now.getDate()) + "日 " + pad(now.getHours()) + ":" + pad(now.getMinutes());
   const vars = {
     realName: character.realName,
     myName: effectiveMyName,
@@ -141,21 +139,24 @@ export function generatePrivateSystemPrompt(character) {
   if (groupCtx) {
     p += "\n--- ▼ 群聊上下文（可自然提及，勿复述）：\n" + groupCtx;
   }
-  // ⑧ currentTime（动态内容放末尾）
-  p += "\n【当前时间】\n" + currentTime + "\n\n";
-  // ⑧.5 上次消息时间
-  const history = (character.history || []);
-  if (history.length > 1) {
+  return p;
+}
+
+// ─── 时间块（动态内容注入最后一条 user 消息，保持 system prompt 静态 → 前缀缓存可命中） ───
+export function buildTimeSuffix(history) {
+  const now = new Date();
+  const currentTime = now.getFullYear() + "年" + pad(now.getMonth()+1) + "月" + pad(now.getDate()) + "日 " + pad(now.getHours()) + ":" + pad(now.getMinutes());
+  let s = "\n【当前时间】\n" + currentTime;
+  if (history && history.length > 1) {
     const lastMsg = history[history.length - 1];
     if (lastMsg && lastMsg.timestamp) {
       const lastTime = new Date(lastMsg.timestamp).toLocaleString('zh-CN', { hour12: false });
-      p += "【上次消息时间】\n" + lastTime + "\n\n";
+      s += "\n\n【上次消息时间】\n" + lastTime;
     }
   }
-  // ⑨ 时间感知块
   const timeContext = calcTimeGapContext(history);
-  if (timeContext) { p += timeContext + "\n"; }
-  return p;
+  if (timeContext) s += "\n\n" + timeContext;
+  return s;
 }
 
 // ─── 群聊提示词 ───────────────────────
@@ -205,20 +206,5 @@ export function generateGroupSystemPrompt(group) {
   // ⑦ part2~part3
   p += fillTemplate(tpl("group_part2"), vars);
   p += fillTemplate(tpl("group_part3"), vars);
-  // ⑦.5 当前时间 + 上次消息时间
-  const now = new Date();
-  const currentTime = now.getFullYear() + "年" + pad(now.getMonth()+1) + "月" + pad(now.getDate()) + "日 " + pad(now.getHours()) + ":" + pad(now.getMinutes());
-  p += "\n【当前时间】\n" + currentTime + "\n\n";
-  const history = (group.history || []);
-  if (history.length > 1) {
-    const lastMsg = history[history.length - 1];
-    if (lastMsg && lastMsg.timestamp) {
-      const lastTime = new Date(lastMsg.timestamp).toLocaleString('zh-CN', { hour12: false });
-      p += "【上次消息时间】\n" + lastTime + "\n\n";
-    }
-  }
-  // ⑧ 时间感知块
-  const timeContext = calcTimeGapContext(history);
-  if (timeContext) { p += timeContext + "\n"; }
   return p;
 }
