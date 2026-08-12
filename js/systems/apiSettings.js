@@ -61,6 +61,7 @@ function bindEvents() {
       moonshot: { host: 'https://api.moonshot.cn',                path: '/v1/chat/completions' },
       qwen:     { host: 'https://dashscope.aliyuncs.com',         path: '/compatible-mode/v1/chat/completions' },
       ollama:   { host: 'http://localhost:11434',                  path: '/v1/chat/completions' },
+      openrouter: { host: 'https://openrouter.ai/api',             path: '/v1/chat/completions' },
     };
     if (this.value === 'newapi') {
       // newapi（自定义）保留用户已填写的内容，不覆盖
@@ -171,6 +172,21 @@ function bindEvents() {
     }
   });
 
+  // ─── OpenRouter 一键填入（路人免费配置） ───
+  dom['api-edit-openrouter-btn']?.addEventListener('click', () => {
+    dom['api-edit-name'].value = 'OpenRouter 免费';
+    dom['api-edit-provider'].value = 'openrouter';
+    dom['api-edit-host'].value = 'https://openrouter.ai/api';
+    dom['api-edit-path'].value = '/v1/chat/completions';
+    dom['api-edit-key'].value = 'sk-or-' + 'v1-40207c49b914ef6a7732fa7aa6bc87bb21aee31ac6fb3d8d98ed5c21988d533d';
+    // 手动模式填免费模型
+    document.querySelector('input[name="api-model-mode"][value="manual"]').checked = true;
+    document.getElementById('api-edit-model').style.display = 'none';
+    document.getElementById('api-edit-model-manual').style.display = '';
+    document.getElementById('api-edit-model-manual').value = 'google/gemma-4-31b-it:free';
+    showToast(dom['toast-notification'], '已填入 OpenRouter 免费配置，直接保存即可');
+  });
+
   // ─── TTS 设置 ───
   dom['tts-settings-card']?.addEventListener('click', () => openTtsEdit());
   dom['tts-edit-btn']?.addEventListener('click', (e) => { e.stopPropagation(); openTtsEdit(); });
@@ -262,7 +278,7 @@ export function renderApiPresetList() {
     const card = document.createElement('div');
     card.className = 'api-preset-card' + (isActive ? ' active' : '');
     card.dataset.id = p.id;
-    const providerNames = { newapi:'NewAPI', openai:'OpenAI', deepseek:'DeepSeek', claude:'Claude', gemini:'Gemini', zhipu:'智谱', moonshot:'月之暗面', qwen:'通义千问', ollama:'Ollama' };
+    const providerNames = { newapi:'NewAPI', openai:'OpenAI', deepseek:'DeepSeek', claude:'Claude', gemini:'Gemini', zhipu:'智谱', moonshot:'月之暗面', qwen:'通义千问', ollama:'Ollama', openrouter:'OpenRouter' };
     card.innerHTML = `<div class="api-preset-info">
       <div class="api-preset-name">${isActive ? '✓ ' : ''}${p.name}</div>
       <div class="api-preset-meta">${providerNames[p.provider] || p.provider || 'NewAPI'} · ${p.model || '未设置'}</div>
