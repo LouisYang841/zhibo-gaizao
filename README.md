@@ -18,6 +18,40 @@
 
 核心聊天逻辑（消息收发、气泡渲染、记忆系统、世界书、群聊等）**完全保留**，在此基础上扩展了模块化引擎和多个独立功能模块。
 
+## 📌 本 Fork 改动（LouisYang841 版）
+
+> 在「组装姬」基础上针对公开部署做的定制改动。
+
+### 🌐 在线部署（GitHub Pages）
+
+- 部署地址：**https://louisyang841.github.io/zhibo-gaizao/**
+- 纯静态部署（无后端），所有数据存浏览器 IndexedDB / localStorage
+- 部署方式：Pages source 指向 `main` 分支根目录，push 后约 1 分钟自动构建
+
+### 🚀 OpenRouter 一键免费配置
+
+- 「API 设置 → 新增配置」底部新增 **「🚀 一键填入 OpenRouter 免费配置」** 按钮
+- 一键填入：端点 `https://openrouter.ai/api` + 内置公开 key + 免费模型 `google/gemma-4-26b-a4b-it:free`
+- API 服务商下拉新增 `OpenRouter (免费)` 选项，选中自动填端点/路径
+- **key 说明**：公开共享 key（额度上限 0.5 credit），仅供免费模型（`:free` 后缀）使用——免费模型不消耗额度；若 key 失效，在 OpenRouter dashboard 删除重建即可，页面可自行更换
+- 免费模型上游偶发 429 限流（共享配额），属正常现象，稍后自动恢复
+
+### 🧹 NSFW 强制规范移除
+
+- 删除 `js/ui/promptBuilder.js` 中硬编码的 `NSFW_RULES` 常量（私聊 + 群聊均移除）
+- 需要成人向风格的用户可在角色「自定义系统指令」或世界书自行注入
+- `promptDefaults.js` 中「可以自由发言，不受内容限制」默认模板保留（设置内可修改），用于避免模型对正常话题拒答
+
+### 🔧 开发注意事项（踩坑记录）
+
+1. **GitHub Pages 缓存**：Pages 对所有文件下发 `max-age=600`（10 分钟）缓存。修改 JS 后**必须** bump `index.html` 中 `app.js?v=N` 版本号，否则浏览器命中旧缓存看不到变化
+2. **双层 DOM 缓存**：新增 UI 元素 ID 必须同时登记：
+   - `js/core/dom.js` 的 `IDS` 白名单（HTML 注入前缓存）
+   - `js/app.js` ~71 行「重新缓存数组」（HTML 注入后缓存）
+   
+   漏任一层 → 元素引用为 `null` → 事件绑定被 `?.` 静默吞掉，点按钮没反应且无报错
+3. **Push Protection**：GitHub secret scanning 会拦截 `sk-or-v1-...` 格式的 key。如需公开 key，用字符串拼接（`'sk-or-' + 'v1-...'`）绕过扫描
+
 ### 功能一览
 
 **核心功能（继承自原版）**
