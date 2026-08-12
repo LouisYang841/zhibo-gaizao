@@ -73,7 +73,7 @@ async function initApp() {
    'add-api-preset-btn', 'api-preset-list', 'img-gen-settings-card', 'img-gen-edit-btn',
    'tts-preview-btn', 'tts-save-btn', 'tts-sogou-speaker', 'tts-sogou-speed', 'tts-speed-label',
    'api-edit-back-btn', 'delete-api-preset-btn', 'api-edit-form', 'api-edit-id', 'api-edit-title',
-   'api-edit-name', 'api-edit-provider', 'api-edit-host', 'api-edit-path', 'api-edit-key', 'api-edit-fetch-btn', 'api-edit-test-btn', 'api-test-result', 'api-edit-model', 'api-edit-model-manual',
+   'api-edit-name', 'api-edit-provider', 'api-edit-host', 'api-edit-path', 'api-edit-key', 'api-edit-fetch-btn', 'api-edit-test-btn', 'api-test-result', 'api-edit-model', 'api-edit-model-manual', 'api-edit-openrouter-btn',
    'img-gen-back-btn', 'img-gen-form', 'img-gen-url', 'img-gen-key', 'img-gen-model', 'img-gen-reset-btn',
    'wallpaper-preview', 'wallpaper-upload', 'font-settings-form', 'font-url', 'restore-default-font-btn',
    'customize-form', 'check-update-btn'].forEach(id => {
