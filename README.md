@@ -42,6 +42,12 @@
 - 需要成人向风格的用户可在角色「自定义系统指令」或世界书自行注入
 - `promptDefaults.js` 中「可以自由发言，不受内容限制」默认模板保留（设置内可修改），用于避免模型对正常话题拒答
 
+### ⏱️ 前缀缓存优化（时间块移出 system prompt）
+
+- 原版把 `【当前时间】`、`【上次消息时间】`、`【时间背景】` 拼进 system prompt——这些内容**每次请求必变**，而 system prompt 是请求前缀的开头，时间一变整个前缀断裂，DeepSeek 等 API 的前缀缓存（命中价 1/10）**连坐炸掉**，对话历史的 KV 缓存全部失效
+- 修复：动态时间块移出 system prompt，由 `buildTimeSuffix()`（`js/ui/promptBuilder.js`）生成，在 `js/ui/chatRoom.js` 注入**最后一条 user 消息**——system prompt 完全静态，前缀缓存稳定命中
+- 注意：`getGroupContext` / 记忆摘要等仍留在 system prompt（对话更新时才变，低频，可接受）
+
 ### 🔧 开发注意事项（踩坑记录）
 
 1. **GitHub Pages 缓存**：Pages 对所有文件下发 `max-age=600`（10 分钟）缓存。修改 JS 后**必须** bump `index.html` 中 `app.js?v=N` 版本号，否则浏览器命中旧缓存看不到变化
